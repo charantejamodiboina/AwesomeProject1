@@ -8,9 +8,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { useTheme } from "./Color";
-import BouncyCheckbox from "react-native-bouncy-checkbox";
 import Geolocation from 'react-native-geolocation-service';
-
 
 
 const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true}) => {
@@ -20,15 +18,6 @@ const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true}) 
     const navigation = useNavigation()
     const colors = useTheme()
 
-    const handleLogout = () => {
-        Logout();
-        navigation.dispatch(
-            CommonActions.reset({
-                index: 0,
-                routes: [{ name: "Login" }],
-            })
-        );
-    };
     
     
     useEffect(() => {
@@ -73,19 +62,18 @@ const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true}) 
         }
     };
     
-    
       const getCurrentLocation = () => {
         Geolocation.getCurrentPosition(
           (position) => {
             console.log(position);
           },
           (error) => {
-            console.error(error.message); // Handling error
+            console.error(error.message); 
           },
           {
-            enableHighAccuracy: true, // optional
-            timeout: 15000,            // optional
-            maximumAge: 10000          // optional
+            enableHighAccuracy: true, 
+            timeout: 15000,            
+            maximumAge: 10000          
           }
         );
       };
@@ -115,11 +103,7 @@ const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true}) 
                 <Text>No data available</Text>
             )}
             {error && <Text style={styles.errorText}>{error}</Text>}
-            <View>
-                <Pressable onPress={handleLogout}>
-                    <Text>Logout</Text>
-                </Pressable>
-            </View>
+            
         </View>
     );
 };

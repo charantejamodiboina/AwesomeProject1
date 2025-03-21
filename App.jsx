@@ -1,81 +1,94 @@
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import {
   SafeAreaView,
-  ScrollView,
-  StatusBar,
   StyleSheet,
-  Text,
-  useColorScheme,
-  View,
+  Pressable,
 } from 'react-native';
-
-
+import { useNavigation, CommonActions } from '@react-navigation/native';
 import LoginPage from './Components/Login';
 import Home from './Components/HomePage';
-import { AuthProvider } from './Components/Auth';
+import { AuthProvider, useAuth } from './Components/Auth';
 import { ColorProvider, useTheme } from './Components/Color';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import customHeader from './Components/Header';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const Stack = createNativeStackNavigator();
 
-const Stack = createNativeStackNavigator()
 function App() {
-  
-  const colors = useTheme();
-  return(
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const getData = async() => {
+    const data = await AsyncStorage.getItem('IsLoggedIn')
+    setIsLoggedIn(data)
+  }
+
+  useEffect(()=>{
+    getData()
+  }, [])
+  return (
     <ColorProvider>
       <AuthProvider>
-        <NavigationContainer >
+        <NavigationContainer>
           <Stack.Navigator>
-          
-            <Stack.Screen
-            name='Login'
-            component={LoginPage}
-            options={{header:()=>false}}
-            />
-            <Stack.Screen
-            name='Home'
-            component={Home}
-            options={{headerBack:()=>false,
-              // headerTitle: () => <customHeader name ="Home"/>,
-              headerStyle: {
-                  backgroundColor: "rgb(72, 99, 255)",
-                  },
-              headerTintColor : "white"
+          {isLoggedIn ? (
+              <Stack.Screen
+              name="Home"
+              component={Home}
+              options={{
+                headerBackVisible: false,
+                headerStyle: {
+                  backgroundColor: 'rgb(72, 99, 255)',
+                },
+                headerTintColor: 'white',
+                headerRight: () => (
+                  <Pressable onPress={() => {
+                    Logout();
+                    navigation.dispatch(
+                      CommonActions.reset({
+                        index: 0,
+                        routes: [{ name: 'Login' }],
+                      })
+                    );
+                  }}>
+                    <AntDesign name="logout" size={20} color="white" />
+                  </Pressable>
+                ),
               }}
-            
-            
             />
+            ) : (
+              <Stack.Screen name="Login" component={LogInNavigator} />
+            )}
           </Stack.Navigator>
         </NavigationContainer>
       </AuthProvider>
     </ColorProvider>
-  )
+  );
+}
+
+function HomeNavigator() {
+  const navigation = useNavigation(); 
+  const { Logout } = useAuth();
+  
+
+  return (
+    <Stack.Navigator>
+      
+      </Stack.Navigator>
+  );
+}
+function LogInNavigator() {
+  return (
+    <Stack.Navigator>
+      
+      </Stack.Navigator>
+  );
 }
 
 const styles = StyleSheet.create({
-  sectionContainer: {
+  btn: {
+    
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  background : {
-    backgroundGradient: "vertical",
-    backgroundGradientTop: "#333333",
-    backgroundGradientBottom: "#666666"
-  }
 });
 
 export default App;

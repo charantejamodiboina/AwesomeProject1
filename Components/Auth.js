@@ -10,6 +10,7 @@ const [token, setToken] = useState(AsyncStorage.getItem('token') || null)
 
 const Login = (newToken) =>{
     AsyncStorage.setItem('token', newToken)
+    AsyncStorage.setItem('IsLoggedIn', JSON.stringify(true))
     setToken(newToken)
 }
 
