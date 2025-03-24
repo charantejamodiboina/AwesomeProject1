@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, useWindowDimensions } from 'react-native';
 import { TabBar, TabView, SceneMap } from 'react-native-tab-view';
-import AssignedTab from "./Status1";
-import ReadyToPick from "./Status2";
-import OutForDelivery from "./Status3";
-import Delivered from "./Status4";
+import {AssignedTab, ReadyToPick, OutForDelivery, Delivered} from "./Status1";
 import { useTheme } from "./Color";
 import { useAuth } from "./Auth";
 import axios from "axios";

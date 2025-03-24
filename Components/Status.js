@@ -2,23 +2,41 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Text, View, StyleSheet, FlatList, Pressable} from "react-native";
 import { useAuth } from "./Auth";
-import { useNavigation } from "@react-navigation/native";
-import { CommonActions } from "@react-navigation/native";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { useTheme } from "./Color";
-import Geolocation from 'react-native-geolocation-service';
-
+import ShowMap from "./Maps";
+import {
+    createStaticNavigation,
+    useNavigation,
+  } from '@react-navigation/native';
+  import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true}) => {
     const { Logout, token } = useAuth();
     const [items, setItems] = useState([]);
     const [error, setError] = useState(null);
-    const navigation = useNavigation()
+    const [showComp, setShowComp] = useState({})
     const colors = useTheme()
+    const navigation = useNavigation();
 
-    
+// const fetchCoordinates= async (address) => {
+//     const API_KEY = "AIzaSyBwyUWzedpphw9uXUDp9rHGuJD35ZVMYws"
+//     try {
+//         const res = await axios.get(
+//             `https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${API_KEY}`
+//         );
+//         if (res.data.status === "OK" ) {
+//             const location = res.data.results[0].geometry.location;
+//             return location; 
+//           } else {
+//             console.log("Error: Geocode API returned no results or status not OK");
+//           }
+//         } catch (error) {
+//           console.log("Error fetching coordinates", error);
+//         }
+//       };
     
     useEffect(() => {
         const fetchData = async () => {
@@ -61,22 +79,17 @@ const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true}) 
             
         }
     };
+    // const navigateToMapScreen = async (shippingaddress) => {
+    //     const address = JSON.parse(shippingaddress).address1;
+    //     const coordinates = await fetchCoordinates(address);
+    //     if (coordinates) {
+    //         navigation.navigate('Map', {
+    //             latitude: coordinates.lat,
+    //             longitude: coordinates.lng,
+    //         });
+    //     }
+    // };
     
-      const getCurrentLocation = () => {
-        Geolocation.getCurrentPosition(
-          (position) => {
-            console.log(position);
-          },
-          (error) => {
-            console.error(error.message); 
-          },
-          {
-            enableHighAccuracy: true, 
-            timeout: 15000,            
-            maximumAge: 10000          
-          }
-        );
-      };
     return (
         <View style={styles.sectionContainer}>
             {items.length > 0 ? (
@@ -88,7 +101,8 @@ const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true}) 
                             <View style={styles.TextContainer}>
                             <Text style={styles.listText}><AntDesign name="user" color= {colors.Primary} size={20}/> {item.customer_name}</Text>
                             <Text style={styles.listText}><Feather name="box" color= {colors.Primary} size={20}/> {item.orderno}</Text>
-                            <Pressable onPress={getCurrentLocation}><Text style={styles.listText}><Ionicons name="location-outline" color= {colors.Primary} size={20}/> {JSON.parse(item.shippingaddress)?.city} {JSON.parse(item.shippingaddress)?.pincode}</Text></Pressable>
+                            <Pressable onPress={() => navigation.navigate("Map")}><Text style={styles.listText}><Ionicons name="location-outline" color= {colors.Primary} size={20}/> {JSON.parse(item.shippingaddress)?.city} {JSON.parse(item.shippingaddress)?.pincode}</Text></Pressable>
+                            {showComp[item.id] && <ShowMap />}
                             </View>
                             
                             <View>

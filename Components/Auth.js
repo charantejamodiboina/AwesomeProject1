@@ -14,8 +14,9 @@ const Login = (newToken) =>{
     setToken(newToken)
 }
 
-const Logout = () =>{
-    AsyncStorage.removeItem('token')
+const Logout = async() =>{
+    await AsyncStorage.removeItem('token')
+    await AsyncStorage.removeItem('IsLoggedIn')
     setToken(null)
 }
 
