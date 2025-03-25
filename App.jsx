@@ -31,7 +31,7 @@ function App() {
         <NavigationContainer>
           
             {isLoggedIn ? (
-              <Stack.Navigator initialRouteName={isLoggedIn ? 'Home' : 'Login'}>
+              <Stack.Navigator>
               <Stack.Screen
                 name="Home"
                 component={Home}
@@ -44,11 +44,9 @@ function App() {
                   headerRight: () => (
                     <Pressable
                       onPress={() => {
-                        // Handle logout logic here
                         AsyncStorage.removeItem('IsLoggedIn');
                         setIsLoggedIn(false);
 
-                        // Reset navigation stack to 'Login'
                         navigation.reset({
                           index: 0,
                           routes: [{ name: 'Login' }],
@@ -75,7 +73,7 @@ function App() {
                 name="Login"
                 component={LoginPage}
                 options={{
-                  headerVisible: false,
+                  headerShown: false,
                 }}
               />
               </Stack.Navigator>

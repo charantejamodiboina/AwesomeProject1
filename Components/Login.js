@@ -4,10 +4,11 @@ import axios from "axios";
 import { useAuth } from "./Auth";
 import { useTheme } from "./Color";
 import FontAwesome from 'react-native-vector-icons/Feather';
+import { useNavigation } from '@react-navigation/native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 // import {Background} from '../assests/images/gradient-neon.jpg'
-const LoginPage = ({navigation}) => {
+const LoginPage = () => {
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
@@ -15,7 +16,7 @@ const LoginPage = ({navigation}) => {
     const [showPassword, setShowPassword] = useState(false)
     const {Login} = useAuth()
     const colors = useTheme()
-
+    const navigation = useNavigation();
     const handleLogin = async() => {
         setLoading(true);
         setError(null)

@@ -17,26 +17,10 @@ const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true}) 
     const { Logout, token } = useAuth();
     const [items, setItems] = useState([]);
     const [error, setError] = useState(null);
-    const [showComp, setShowComp] = useState({})
     const colors = useTheme()
+    const [coordinates, setCoordinates] = useState(null)
     const navigation = useNavigation();
 
-// const fetchCoordinates= async (address) => {
-//     const API_KEY = "AIzaSyBwyUWzedpphw9uXUDp9rHGuJD35ZVMYws"
-//     try {
-//         const res = await axios.get(
-//             `https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${API_KEY}`
-//         );
-//         if (res.data.status === "OK" ) {
-//             const location = res.data.results[0].geometry.location;
-//             return location; 
-//           } else {
-//             console.log("Error: Geocode API returned no results or status not OK");
-//           }
-//         } catch (error) {
-//           console.log("Error fetching coordinates", error);
-//         }
-//       };
     
     useEffect(() => {
         const fetchData = async () => {
@@ -79,17 +63,24 @@ const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true}) 
             
         }
     };
-    // const navigateToMapScreen = async (shippingaddress) => {
-    //     const address = JSON.parse(shippingaddress).address1;
-    //     const coordinates = await fetchCoordinates(address);
-    //     if (coordinates) {
-    //         navigation.navigate('Map', {
-    //             latitude: coordinates.lat,
-    //             longitude: coordinates.lng,
-    //         });
-    //     }
-    // };
-    
+    const fetchCoordinates = async(address) => {
+        try {
+            const addressString = JSON.parse(address).address1
+            const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json`, {
+                params: {
+                    address: addressString,
+                    key: "AIzaSyBEhoXegQdZgL1z5vZc4gD0I_Q4MLnnsII",
+                },
+            });
+            console.log(response.data)
+            const location = response.data.results[0]?.geometry?.location;
+            if (location) {
+                setCoordinates(location);
+            }
+        } catch (error) {
+            console.error("Error fetching coordinates:", error);
+        }
+    } 
     return (
         <View style={styles.sectionContainer}>
             {items.length > 0 ? (
@@ -101,8 +92,11 @@ const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true}) 
                             <View style={styles.TextContainer}>
                             <Text style={styles.listText}><AntDesign name="user" color= {colors.Primary} size={20}/> {item.customer_name}</Text>
                             <Text style={styles.listText}><Feather name="box" color= {colors.Primary} size={20}/> {item.orderno}</Text>
-                            <Pressable onPress={() => navigation.navigate("Map")}><Text style={styles.listText}><Ionicons name="location-outline" color= {colors.Primary} size={20}/> {JSON.parse(item.shippingaddress)?.city} {JSON.parse(item.shippingaddress)?.pincode}</Text></Pressable>
-                            {showComp[item.id] && <ShowMap />}
+                            <Pressable onPress={() => {
+                                    fetchCoordinates(item.shippingaddress);
+                                    navigation.navigate("Map");
+                                }}><Text style={styles.listText}><Ionicons name="location-outline" color= {colors.Primary} size={20}/> {JSON.parse(item.shippingaddress)?.address1} {JSON.parse(item.shippingaddress)?.pincode}</Text></Pressable>
+                            
                             </View>
                             
                             <View>
