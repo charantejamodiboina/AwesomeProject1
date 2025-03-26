@@ -2,27 +2,60 @@ import React, { useEffect, useState } from "react";
 import { View, StyleSheet, PermissionsAndroid, Text } from "react-native";
 import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
 
-const ShowMap = ({ coordinates }) => {
-  // const [coordinates, setCoordinates] = useState({
-  //   latitude: 37.78825,
-  //         longitude: -122.4324,
-  // })
+const ShowMap = ({ route }) => {
+  const { coordinates } = route.params;
+  console.log(coordinates)
+  const [hasLocationPermission, setHasLocationPermission] = useState(false);
+
+  useEffect(() => {
+    const requestPermission = async () => {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          title: "Location Permission",
+          message: "We need your location to show the map.",
+          buttonNeutral: "Ask Me Later",
+          buttonNegative: "Cancel",
+          buttonPositive: "OK",
+        }
+      );
+
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log("Location permission granted");
+        setHasLocationPermission(true);
+      } else {
+        console.log("Location permission denied");
+        setHasLocationPermission(false);
+      }
+    };
+
+    requestPermission();
+  }, []);
+
+  if (!hasLocationPermission) {
+    return <Text>Permission to access location denied</Text>;
+  }
+
   if (!coordinates) {
-    return <Text>Loading map...</Text>; // Show loading text if coordinates are not available
+    return <Text>Loading map...</Text>;
 }
+const mapCoordinates = {
+  latitude: coordinates.lat,
+  longitude: coordinates.lng,
+};
   return (
     <View style={styles.container}>
       <MapView
         style={styles.map}
         provider={PROVIDER_GOOGLE} 
         initialRegion={{
-          latitude: coordinates.latitude,
-          longitude: coordinates.longitude,
+          latitude: mapCoordinates.latitude,
+          longitude: mapCoordinates.longitude,
           latitudeDelta: 0.09,
           longitudeDelta: 0.04,
         }}
       >
-        <Marker coordinate={coordinates} >
+        <Marker coordinate={mapCoordinates} >
  
 </Marker>
       </MapView>

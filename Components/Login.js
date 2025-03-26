@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import { View, Text, ScrollView, Pressable, TextInput, StyleSheet, Button, Alert, ImageBackground, Image} from "react-native";
+import { View, Text, ScrollView, Pressable, TextInput, StyleSheet, ActivityIndicator, Button, Alert, ImageBackground, Image} from "react-native";
 import axios from "axios";
 import { useAuth } from "./Auth";
 import { useTheme } from "./Color";
@@ -23,8 +23,10 @@ const LoginPage = () => {
         try {
             if(!username || !password){
                 setError("Please enter both email and password")
+                setLoading(false)
+                return;
             }
-            else{
+            
             const res = await axios.post("https://admin.shopersbay.com/asapi/authlogin",
             {username : username, password : password},
             {
@@ -37,16 +39,17 @@ const LoginPage = () => {
             if (res.data.status==="success"){
                 const {jwt_token} = res.data
                 Login(jwt_token)
-                navigation.reset({
-                    index: 0, 
-                    routes: [{ name: 'Home' }], 
-                  })
+                setLoading(false)
+                navigation.navigate("Home")
+                
             }else{
                 setError("Invalid username or Password")
+                setLoading(false);
             }
-            setLoading(false);}
+            setLoading(false);
         }catch (error) {
             setError("Something Went wrong")
+            setLoading(false)
         }finally{
             setLoading(false)
         }
@@ -86,7 +89,7 @@ const LoginPage = () => {
             <Pressable><Text style={styles.fPButton}>Forgot Password</Text></Pressable>
             <Pressable style={[styles.btn, {borderColor:colors.Primary}]} onPress= {handleLogin}><Text style={[styles.btntext, {color:colors.Primary}]}>Sign in</Text></Pressable>
             {error && <Text style={styles.errorText}>{error}</Text>}
-            {loading && <Text style={styles.errorText}> Loading ....</Text>}
+            {loading &&  <ActivityIndicator size="large" color={colors.Primary} />}
             </View>
         </View>
     )

@@ -94,8 +94,8 @@ const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true}) 
                             <Text style={styles.listText}><Feather name="box" color= {colors.Primary} size={20}/> {item.orderno}</Text>
                             <Pressable onPress={() => {
                                     fetchCoordinates(item.shippingaddress);
-                                    navigation.navigate("Map");
-                                }}><Text style={styles.listText}><Ionicons name="location-outline" color= {colors.Primary} size={20}/> {JSON.parse(item.shippingaddress)?.address1} {JSON.parse(item.shippingaddress)?.pincode}</Text></Pressable>
+                                    navigation.navigate("Map", {coordinates});
+                                }}><Text style={styles.listText}><Ionicons name="location-outline" color= {colors.Primary} size={20}/> {JSON.parse(item.shippingaddress)?.city} {JSON.parse(item.shippingaddress)?.pincode}</Text></Pressable>
                             
                             </View>
                             
