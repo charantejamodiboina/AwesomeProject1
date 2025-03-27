@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import Status from "./Status";
 import { Pressable, Text, View } from "react-native";
-
-
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import { useTheme } from "./Color";
 const Profile = () => {
+  const colors =useTheme()
     return(
         <View>
             <Pressable
@@ -18,8 +18,8 @@ const Profile = () => {
                       );
                     }}
                   >
-                    <AntDesign name="logout" size={20} color="white" />
-                  </Pressable>
+                    <AntDesign name="logout" size={20} color={colors.Primary} />
+                </Pressable>
         </View>
     )
 }

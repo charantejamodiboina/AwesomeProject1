@@ -75,7 +75,7 @@ const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true}) 
             console.log(response.data)
             const location = response.data.results[0]?.geometry?.location;
             if (location) {
-                setCoordinates(location);
+                navigation.navigate("Map", {coordinates : location});
             }
         } catch (error) {
             console.error("Error fetching coordinates:", error);
@@ -94,7 +94,7 @@ const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true}) 
                             <Text style={styles.listText}><Feather name="box" color= {colors.Primary} size={20}/> {item.orderno}</Text>
                             <Pressable onPress={() => {
                                     fetchCoordinates(item.shippingaddress);
-                                    navigation.navigate("Map", {coordinates});
+                                    
                                 }}><Text style={styles.listText}><Ionicons name="location-outline" color= {colors.Primary} size={20}/> {JSON.parse(item.shippingaddress)?.city} {JSON.parse(item.shippingaddress)?.pincode}</Text></Pressable>
                             
                             </View>
