@@ -5,20 +5,18 @@ import { useAuth } from "./Auth";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { useTheme } from "./Color";
 import ShowMap from "./Maps";
 import {
-    createStaticNavigation,
     useNavigation,
   } from '@react-navigation/native';
-  import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true}) => {
+const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true, ShowDirections=true}) => {
     const { Logout, token } = useAuth();
     const [items, setItems] = useState([]);
     const [error, setError] = useState(null);
     const colors = useTheme()
-    const [coordinates, setCoordinates] = useState(null)
     const navigation = useNavigation();
 
     
@@ -42,8 +40,9 @@ const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true}) 
             }
         };
         fetchData();
-    }, [token]);
+    }, [shippingstatus, token]);
     const handleUpdateStatus = async(id) => {
+        
         try {
             const res = await axios.post(
                 "https://admin.shopersbay.com/asapi/updateShippingStatus",
@@ -59,10 +58,12 @@ const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true}) 
                     }
             )
             console.log(res.data)
+            fetchData()
         } catch (error) {
-            
+            setError("error updating the data")
         }
     };
+    
     const fetchCoordinates = async(address) => {
         try {
             const addressString = JSON.parse(address).address1
@@ -87,22 +88,24 @@ const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true}) 
                 <FlatList
                     data={items}
                     keyExtractor={(item) => item.id.toString()}
+                    refreshing={true}
                     renderItem={({ item }) => (
                         <View style={styles.itemContainer} >
                             <View style={styles.TextContainer}>
                             <Text style={styles.listText}><AntDesign name="user" color= {colors.Primary} size={20}/> {item.customer_name}</Text>
                             <Text style={styles.listText}><Feather name="box" color= {colors.Primary} size={20}/> {item.orderno}</Text>
-                            <Pressable onPress={() => {
-                                    fetchCoordinates(item.shippingaddress);
-                                    
-                                }}><Text style={styles.listText}><Ionicons name="location-outline" color= {colors.Primary} size={20}/> {JSON.parse(item.shippingaddress)?.city} {JSON.parse(item.shippingaddress)?.pincode}</Text></Pressable>
-                            
+                            <Text style={styles.listText}><Ionicons name="location-outline" color= {colors.Primary} size={20}/> {JSON.parse(item.shippingaddress)?.city} {JSON.parse(item.shippingaddress)?.pincode}</Text>
                             </View>
                             
-                            <View>
+                            <View style={styles.buttonContainer}>
+                            {ShowDirections &&
+                    <Pressable style={styles.directionButton} onPress={() => {
+                        fetchCoordinates(item.shippingaddress)}}><FontAwesome5 name="directions" color={colors.Primary} size={25}/></Pressable>
+            }
                             {ShowButton &&
                             <Pressable style={[styles.statusChangeBtn, {backgroundColor:colors.Primary}]} onPress={()=>handleUpdateStatus(item.id)}><Text style={{color:"white"}}>{buttonLabel}</Text></Pressable>
                     }
+                    
                             </View>
                         </View>
                     )}
@@ -149,7 +152,13 @@ export const styles = StyleSheet.create({
     height:30,
     alignItems:"center",
     justifyContent:"center",
-    borderRadius:4
+    borderRadius:4,
+    },
+    buttonContainer :{
+        justifyContent:"space-between"
+    },
+    directionButton:{
+        alignSelf: "flex-end"
     }
 });
 

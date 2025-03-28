@@ -27,10 +27,16 @@ function App() {
   }, []);
 
 function TabNavigation(){
+  const {colors} = useTheme()
   return(
+    
     <Tab.Navigator>
-      <Tab.Screen name="Home" component={Home}/>
+      <ColorProvider>
+      <Tab.Screen name="Home" component={Home} options={{headerStyle :{
+        backgroundColor : colors.Primary
+      }}}/>
       <Tab.Screen name="Profile" component={Profile}/>
+      </ColorProvider>
     </Tab.Navigator>
   )
 }
@@ -39,10 +45,10 @@ function TabNavigation(){
       <AuthProvider>
         <NavigationContainer>
           
-            {isLoggedIn ? (
+            
               <Stack.Navigator>
               <Stack.Screen
-                name="Home"
+                name="HomeScreen"
                 component={TabNavigation}
                 options={{
                   headerShown: false,
@@ -57,9 +63,7 @@ function TabNavigation(){
                 headerShown: false,
               }}
               />
-              </Stack.Navigator>
-            ) : (
-              <Stack.Navigator>
+              
               <Stack.Screen
                 name="Login"
                 component={LoginPage}
@@ -68,7 +72,7 @@ function TabNavigation(){
                 }}
               />
               </Stack.Navigator>
-            )}
+          
           
         </NavigationContainer>
       </AuthProvider>

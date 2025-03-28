@@ -7,6 +7,7 @@ import FontAwesome from 'react-native-vector-icons/Feather';
 import { useNavigation } from '@react-navigation/native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Fontisto from 'react-native-vector-icons/Fontisto';
+import { Screen } from "react-native-screens";
 // import {Background} from '../assests/images/gradient-neon.jpg'
 const LoginPage = () => {
     const [username, setUsername] = useState("")
@@ -40,7 +41,7 @@ const LoginPage = () => {
                 const {jwt_token} = res.data
                 Login(jwt_token)
                 setLoading(false)
-                navigation.navigate("Home")
+                navigation.navigate("HomeScreen")
                 
             }else{
                 setError("Invalid username or Password")

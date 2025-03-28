@@ -45,7 +45,7 @@ useEffect(() => {
         setPosition(location);
       },
       (error) => Alert.alert(JSON.stringify(error)),
-      { enableHighAccuracy: true, distanceFilter: 10, interval: 10000 }
+      { enableHighAccuracy: false, distanceFilter: 10, interval: 10000 }
     );
 
     return () => Geolocation.clearWatch(watcher);
