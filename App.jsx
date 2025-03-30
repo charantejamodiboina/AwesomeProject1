@@ -10,7 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import ShowMap from './Components/Maps';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Profile from './Components/profile';
-
+import AntDesign from 'react-native-vector-icons/AntDesign';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator()
 
@@ -27,16 +27,34 @@ function App() {
   }, []);
 
 function TabNavigation(){
-  const {colors} = useTheme()
+  const colors = useTheme()
   return(
     
-    <Tab.Navigator>
-      <ColorProvider>
+    <Tab.Navigator
+    screenOptions={{
+      tabBarStyle : {
+        backgroundColor: colors.Primary,
+        paddingTop : 8,
+        height : 90,
+        activeTintColor : "white"
+      }
+    }}>
       <Tab.Screen name="Home" component={Home} options={{headerStyle :{
-        backgroundColor : colors.Primary
-      }}}/>
-      <Tab.Screen name="Profile" component={Profile}/>
-      </ColorProvider>
+        backgroundColor : colors.Primary,
+        },
+        headerTintColor:"white",
+        tabBarIcon : () => (
+          <AntDesign name= "home" color = "white" size={25} />
+        )
+        }}/>
+      <Tab.Screen name="Profile" component={Profile} options={{headerStyle :{
+        backgroundColor : colors.Primary,
+        },
+        headerTintColor:"white",
+        tabBarIcon : () => (
+          <AntDesign name= "profile" color = "white" size={25} />
+        )
+        }}/>
     </Tab.Navigator>
   )
 }
