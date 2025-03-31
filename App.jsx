@@ -10,7 +10,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import ShowMap from './Components/Maps';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Profile from './Components/profile';
-import AntDesign from 'react-native-vector-icons/AntDesign';
+import AntDesign from 'react-native-vector-icons/Feather';
+import OrderDetails from './Components/OrderDetails';
+import { RefreshProvider } from './Components/TabRefresh';
+import Scanner from './Components/QrcodeScanner';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator()
 
@@ -36,8 +39,8 @@ function TabNavigation(){
         backgroundColor: colors.Primary,
         paddingTop : 8,
         height : 90,
-        activeTintColor : "white"
-      }
+      },
+      tabBarActiveTintColor : "white"
     }}>
       <Tab.Screen name="Home" component={Home} options={{headerStyle :{
         backgroundColor : colors.Primary,
@@ -52,13 +55,14 @@ function TabNavigation(){
         },
         headerTintColor:"white",
         tabBarIcon : () => (
-          <AntDesign name= "profile" color = "white" size={25} />
+          <AntDesign name= "user" color = "white" size={25} />
         )
         }}/>
     </Tab.Navigator>
   )
 }
   return (
+    
     <ColorProvider>
       <AuthProvider>
         <NavigationContainer>
@@ -88,6 +92,14 @@ function TabNavigation(){
                 options={{
                   headerShown: false,
                 }}
+              />
+              <Stack.Screen
+              name="Order Details"
+              component={OrderDetails}
+              />
+              <Stack.Screen
+              name="Scanner"
+              component={Scanner}
               />
               </Stack.Navigator>
           

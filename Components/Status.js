@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { Text, View, StyleSheet, FlatList, Pressable} from "react-native";
 import { useAuth } from "./Auth";
@@ -9,38 +9,42 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { useTheme } from "./Color";
 import ShowMap from "./Maps";
 import {
+    useFocusEffect,
     useNavigation,
   } from '@react-navigation/native';
+import OrderDetails from "./OrderDetails";
 
-const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true, ShowDirections=true}) => {
+const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true, ShowDirections=true, ShowODButton=true}) => {
     const { Logout, token } = useAuth();
     const [items, setItems] = useState([]);
     const [error, setError] = useState(null);
+    const [refreshData, setRefreshData] = useState(null)
     const colors = useTheme()
     const navigation = useNavigation();
 
-    
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const res = await axios.post(
-                    "https://admin.shopersbay.com/asapi/getAssignedlist",
-                    { shipping_status: shippingstatus },
-                    {
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`,
-                        },
-                    }
-                );
-                console.log(res.data.data)
-                setItems(res.data.data);
-            } catch (error) {
-                setError("Something went wrong");
-            }
-        };
+    const fetchData = async () => {
+        try {
+            const res = await axios.post(
+                "https://admin.shopersbay.com/asapi/getAssignedlist",
+                { shipping_status: shippingstatus },
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    },
+                }
+            );
+            console.log(res.data.data)
+            setItems(res.data.data);
+        } catch (error) {
+            setError("Something went wrong");
+        }
+    };
+    useFocusEffect(
+        useCallback(() => {
+        
         fetchData();
-    }, [shippingstatus, token]);
+    }, [shippingstatus, token, refreshData]));
     const handleUpdateStatus = async(id) => {
         
         try {
@@ -58,7 +62,7 @@ const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true, S
                     }
             )
             console.log(res.data)
-            fetchData()
+            setRefreshData(!refreshData)
         } catch (error) {
             setError("error updating the data")
         }
@@ -103,9 +107,9 @@ const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true, S
                         fetchCoordinates(item.shippingaddress)}}><FontAwesome5 name="directions" color={colors.Primary} size={25}/></Pressable>
             }
                             {ShowButton &&
-                            <Pressable style={[styles.statusChangeBtn, {backgroundColor:colors.Primary}]} onPress={()=>handleUpdateStatus(item.id)}><Text style={{color:"white"}}>{buttonLabel}</Text></Pressable>
-                    }
-                    
+                            <Pressable style={[styles.statusChangeBtn, {backgroundColor:colors.Primary}]} onPress={()=>handleUpdateStatus(item.id)}><Text style={{color:"white"}}>{buttonLabel}</Text></Pressable>}
+                            {ShowODButton &&
+                            <Pressable style={[styles.statusChangeBtn, {backgroundColor:colors.Primary}]} onPress={()=> {navigation.navigate("Order Details" , {order:item.id})}}><Text style={{color:"white"}}>Deliver</Text></Pressable>}
                             </View>
                         </View>
                     )}

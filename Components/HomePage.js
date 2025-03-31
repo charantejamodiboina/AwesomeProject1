@@ -1,10 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { View, useWindowDimensions } from 'react-native';
 import { TabBar, TabView, SceneMap } from 'react-native-tab-view';
 import {AssignedTab, ReadyToPick, OutForDelivery, Delivered} from "./Status1";
 import { useTheme } from "./Color";
 import { useAuth } from "./Auth";
 import axios from "axios";
+import { RefreshProvider } from "./TabRefresh";
+import {
+  useFocusEffect,
+  useNavigation,
+} from '@react-navigation/native';
 
 
 
@@ -17,25 +22,28 @@ const Home = () => {
   const token = useAuth()
   
   const [error, setError] = useState(null)
-  useEffect(()=>{
-    const fetchdata = async() => {
-        try {
-          const res = await axios.get("https://admin.shopersbay.com/asapi/getStatusItems",
-            {
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`,
-            },
-            }
-          )
-          console.log(res.data.data)
-          setItems(res.data.data)
-        } catch (error) {
-          setError("something went wrong")
+  const fetchdata = async() => {
+    try {
+      const res = await axios.get("https://admin.shopersbay.com/asapi/getStatusItems",
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+        },
         }
+      )
+      console.log(res.data.data)
+      setItems(res.data.data)
+    } catch (error) {
+      setError("something went wrong")
     }
+}
+  useFocusEffect(
+    useCallback(()=>{
+    
     fetchdata()
-  },[token])
+    
+  },[token]))
 
   const routes = items.map((item, index) => ({
     key : `status ${index}`,
@@ -66,6 +74,7 @@ const renderTabbar = (props) => (
       onIndexChange={setIndex}
       initialLayout={{ width: layout.width }}
     />
+    
   );
 }
 
