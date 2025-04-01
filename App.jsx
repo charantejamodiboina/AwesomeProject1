@@ -100,6 +100,9 @@ function TabNavigation(){
               <Stack.Screen
               name="Scanner"
               component={Scanner}
+              options={{
+                headerShown: false,
+              }}
               />
               </Stack.Navigator>
           
