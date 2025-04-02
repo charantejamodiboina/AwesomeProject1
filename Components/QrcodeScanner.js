@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useNavigation } from '@react-navigation/native';
 import {
   Camera,
@@ -7,20 +7,52 @@ import {
   useCodeScanner,
 } from "react-native-vision-camera";
 import { useTheme } from "./Color";
+import axios from "axios";
+import { useAuth } from "./Auth";
 
-const QRScanner = ({onRead}) => {
+const QRScanner = () => {
     const navigation = useNavigation()
     const colors = useTheme()
     const [hasPermissions, setPermissions] = useState(false)
     const [refresh, setRefresh] = useState(false)
     const [value, setValue]= useState("")
-    
+    const [loading, setLoading] = useState(false)
+    const [error, setError]= useState(null)
+    const {token} = useAuth()
+
+    const verifyOrderId = (orderid) =>{
+        try {
+            const res = axios.post(`https://admin.shopersbay.com/asapi/verifyOrderDetail`, { orderid:orderid },
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    },
+                })
+                console.log(res.data)
+
+        } catch (error) {
+            setError("something went Wrong")
+        }finally {
+            setLoading(false)
+        }
+    }
     const device = useCameraDevice("back")
     const scanner = useCodeScanner({
-        codeTypes : ["qr", "codabar"],
-        onCodeScanned : (codes)=>{
+        codeTypes : [
+            "qr", 
+            "codabar",
+            "code128",
+            "code39", 
+            "ean13", 
+            "ean8", 
+            "upc_a", 
+            "upc_e"
+        ],
+        onCodeScanned : async (codes)=>{
             console.log("codescanned :", codes )
-            setValue(codes[0].value)
+            const orderid = codes[0].value
+            await verifyOrderId(orderid)
         }
     })
     useEffect(()=>{
@@ -47,7 +79,8 @@ const QRScanner = ({onRead}) => {
     }
     return(
         <View style={styles.container}>
-            
+            {loading && <ActivityIndicator color= {colors.Primary} size={"large"}/>}
+            {error && <Text>{error}</Text>}
             <Camera
             codeScanner={scanner}
             style={styles.camera}

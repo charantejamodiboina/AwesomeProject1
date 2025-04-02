@@ -3,6 +3,7 @@ const ColorContext = createContext()
 export const ColorProvider = ({children}) => {
     const colors = {
         Primary : "rgb(72, 99, 255)",
+        TextInPrimary : "white",
         TextColor : "black",
         background : "white"
     }

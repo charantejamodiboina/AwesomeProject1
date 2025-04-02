@@ -14,6 +14,7 @@ import AntDesign from 'react-native-vector-icons/Feather';
 import OrderDetails from './Components/OrderDetails';
 import { RefreshProvider } from './Components/TabRefresh';
 import Scanner from './Components/QrcodeScanner';
+import Header from './Components/CustomHeader';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator()
 
@@ -37,8 +38,11 @@ function TabNavigation(){
     screenOptions={{
       tabBarStyle : {
         backgroundColor: colors.Primary,
+        shadowOpacity:0,
+        elevation:0,
+        shadowOffset: { width: 0, height: 0 },
         paddingTop : 8,
-        height : 90,
+        height : 70,
       },
       tabBarActiveTintColor : "white"
     }}>
@@ -96,6 +100,11 @@ function TabNavigation(){
               <Stack.Screen
               name="Order Details"
               component={OrderDetails}
+              options={{
+                header :() =>
+                  <Header title="Order Details"/>
+                
+              }}
               />
               <Stack.Screen
               name="Scanner"

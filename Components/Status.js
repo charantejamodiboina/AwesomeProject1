@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
-import { Text, View, StyleSheet, FlatList, Pressable} from "react-native";
+import { Text, View, StyleSheet, FlatList, Pressable, ActivityIndicator} from "react-native";
 import { useAuth } from "./Auth";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Feather from 'react-native-vector-icons/Feather';
@@ -19,10 +19,12 @@ const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true, S
     const [items, setItems] = useState([]);
     const [error, setError] = useState(null);
     const [refreshData, setRefreshData] = useState(null)
+    const [loading, setLoading]= useState(false)
     const colors = useTheme()
     const navigation = useNavigation();
 
     const fetchData = async () => {
+        setLoading(true)
         try {
             const res = await axios.post(
                 "https://admin.shopersbay.com/asapi/getAssignedlist",
@@ -38,6 +40,8 @@ const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true, S
             setItems(res.data.data);
         } catch (error) {
             setError("Something went wrong");
+        }finally{
+            setLoading(false)
         }
     };
     useFocusEffect(
@@ -109,7 +113,7 @@ const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true, S
                             {ShowButton &&
                             <Pressable style={[styles.statusChangeBtn, {backgroundColor:colors.Primary}]} onPress={()=>handleUpdateStatus(item.id)}><Text style={{color:"white"}}>{buttonLabel}</Text></Pressable>}
                             {ShowODButton &&
-                            <Pressable style={[styles.statusChangeBtn, {backgroundColor:colors.Primary}]} onPress={()=> {navigation.navigate("Order Details" , {order:item.id})}}><Text style={{color:"white"}}>Deliver</Text></Pressable>}
+                            <Pressable style={[styles.statusChangeBtn, {backgroundColor:colors.Primary}]} onPress={()=> {navigation.navigate("Order Details" , {order:item.id, address:JSON.parse(item.shippingaddress)?.city, adpincode:JSON.parse(item.shippingaddress)?.pincode, name:item.customer_name, price:item.amt})}}><Text style={{color:"white"}}>Deliver</Text></Pressable>}
                             </View>
                         </View>
                     )}
@@ -118,7 +122,7 @@ const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true, S
                 <Text>No data available</Text>
             )}
             {error && <Text style={styles.errorText}>{error}</Text>}
-            
+            {loading && <ActivityIndicator color={colors.Primary} size={"large"}/>}
         </View>
     );
 };

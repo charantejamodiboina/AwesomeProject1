@@ -1,21 +1,24 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Pressable, View, Text, StyleSheet, FlatList } from "react-native";
+import { Pressable, View, Text, StyleSheet, FlatList, ActivityIndicator } from "react-native";
 import { useAuth } from "./Auth";
 import {useNavigation}  from '@react-navigation/native';
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
-import FontAwesome from "react-native-vector-icons/FontAwesome"
-import Feather from "react-native-vector-icons/Feather"
+import FontAwesome6 from "react-native-vector-icons/FontAwesome6"
+import AntDesign from "react-native-vector-icons/AntDesign"
+import Ionicons from "react-native-vector-icons/Ionicons"
 import { useTheme } from "./Color";
 const OrderDetails = ({route}) => {
+    const {order, address, adpincode, price, name} = route.params
     const {token} = useAuth()
     const [items, setItems] = useState([])
     const [error, setError] = useState(null)
+    const [loading, setLoading] = useState(false)
     const colors =useTheme()
     const navigation = useNavigation()
-    const {order} = route.params
     useEffect(()=>{
         const fetchDetails = async() =>{
+            setLoading(true)
             try {
                 const res = await axios.get(`https://admin.shopersbay.com/asapi/getOrderDetail/${order}`,
                     {
@@ -27,9 +30,12 @@ const OrderDetails = ({route}) => {
                     })
                     console.log(order)
                     console.log(res.data)
+                    setLoading(true)
                     setItems(res.data.data)
             } catch (error) {
                 setError("something went wrong")
+            } finally{
+                setLoading(false)
             }
            
         }
@@ -37,34 +43,36 @@ const OrderDetails = ({route}) => {
     }, [order, token])
     return(
         <View style={styles.sectionContainer}>
-
+            <View style={styles.itemContainer1}>
+                <View style={[styles.userDetails, {borderBottomColor:"rgba(0,0,0,0.1)"}]}>
+            <Text style={[styles.headingText, {color:colors.Primary}]}>{name}</Text>
+                <View style={styles.iconView}><FontAwesome6 name="location-dot" color= {colors.Primary} size={16}/><Text>{address} {adpincode}</Text></View>
+                <View style={styles.iconView}><FontAwesome6 name="indian-rupee-sign" color= {colors.Primary} size={16}/><Text>Price - {price}</Text></View>
+                </View>
+                <Pressable style={styles.callButton}><Ionicons name="call" color={colors.Primary} size={25}/><Text style={{color:colors.Primary, fontSize:16, fontWeight:"bold"}}>Call Customer</Text></Pressable>
+                
+            </View>
+            <Text style={{fontSize:16, paddingVertical:5}}>Delivery Requests  ({items.length})</Text>
         {items.length > 0 ? 
         (<FlatList
             data = {items}
             keyExtractor={(item)=>item.orderid.toString()}
             renderItem={({item}) => (
                 <View style= {styles.itemContainer}>
-                    <Text style={[styles.titleText, {color:colors.Primary}]}>{JSON.parse(item.product_details)?.product_title}</Text>
-                    <View style={{flexDirection : "row", justifyContent:"space-between"}}>
-                    
-                    <View style={styles.TextContainer}>
-                    
-                    <Text style={styles.listText}><Feather name="box" color= {colors.Primary} size={20}/> {item.orderid}</Text>
-                    <Text style={styles.listText}><FontAwesome name="rupee" color= {colors.Primary} size={20} /> {item.amount}</Text>
-                    <Text  style={styles.listText}><Text style = {{color: colors.Primary, fontWeight : "bold", fontSize: 18}}>Qty  </Text>{item.quantity}</Text>
-                    </View>
                     <View style={styles.buttonContainer}>
-                    <Pressable onPress= {()=>{navigation.navigate("Scanner")}} style={[styles.scanButton, {backgroundColor : colors.Primary}]}><MaterialCommunityIcons name="barcode-scan" color="white" size={20}/><Text style={styles.scanText}> Scan</Text></Pressable>
-                    <Pressable style={[styles.scanButton, {backgroundColor : colors.Primary}]}><MaterialCommunityIcons name="qrcode-scan" color="white" size={20} /><Text style={styles.scanText}> Scan</Text></Pressable>
-                    </View>
-                    </View>
+                        
+                    <Text style={styles.titleText}> {item.orderid}</Text>
+                    <Pressable onPress= {()=>{navigation.navigate("Scanner", {order:order})}} style={[styles.scanButton, {backgroundColor : colors.Primary}]}><MaterialCommunityIcons name="barcode-scan" color="white" size={20}/>{/*<MaterialCommunityIcons name="qrcode-scan" color="white" size={20} />*/}<Text style={styles.scanText}> Scan</Text></Pressable>
                     
+                    </View>
+                    <Text style={[styles.listText]}>{JSON.parse(item.product_details)?.product_title}</Text>
+                    <Text  style={[styles.boldText, {color:colors.Primary}]}>Qty : {item.quantity}  | Price : {item.amount}</Text>   
                 </View>)}
 
             
         /> )
         : <Text>No orders</Text>}
-            
+        {loading && <ActivityIndicator size="large" color={colors.Primary} />}
         {error && <Text>{error}</Text>}
         </View>
     )
@@ -81,21 +89,31 @@ const styles = StyleSheet.create({
         color: "red",
         marginTop: 10,
     },
+    itemContainer1 :{
+        flexDirection:"column",
+        backgroundColor:"white",
+        height:220,
+        padding: 20,
+        marginVertical: 8,
+        marginHorizontal: 2,
+        boxShadow: "0px 0px 10px -5px rgba(0,0,0,0.5)", 
+        justifyContent:"space-between",
+        borderRadius:10
+    },
     itemContainer :{
         flexDirection:"column",
         backgroundColor:"white",
-        height:300,
+        height:180,
         padding: 30,
         marginVertical: 8,
-        marginHorizontal: 8,
-        boxShadow: "10px 10px 17px -12px rgba(0,0,0,0.5)", 
-        justifyContent:"space-evenly"
-    },
-    TextContainer :{
-        justifyContent:"space-between"
+        marginHorizontal: 2,
+        boxShadow: "0px 0px 10px -5px rgba(0,0,0,0.5)", 
+        justifyContent:"space-evenly",
+        borderRadius:10,
+        gap:10
     },
     listText: {
-        color: "black",
+        color: "rgba(0, 0, 0, 0.5)",
         fontSize : 15,
         justifyContent : "center",
     },
@@ -104,13 +122,19 @@ const styles = StyleSheet.create({
         justifyContent : "center",
         fontWeight : "bold"
     },
+    boldText: {
+        fontSize : 16,
+        justifyContent : "center",
+        fontWeight : "bold"
+    },
     buttonContainer :{
-        justifyContent:"flex-end",
-        gap:20,
+        justifyContent:"space-between",
+        flexDirection : "row",
+        alignItems : "center"
         
     },
     scanButton:{
-        width:80,
+        width:100,
         flexDirection: "row",
         alignItems : "center",
         justifyContent:"center",
@@ -120,6 +144,26 @@ const styles = StyleSheet.create({
     },
     scanText:{
         color:"white"
+    },
+    headingText:{
+        fontWeight:"bold",
+        fontSize:25
+    },
+    userDetails:{
+        justifyContent:"space-evenly",
+        height:130,
+        borderBottomWidth : 1,
+        paddingTop:0
+    },
+    iconView:{
+        flexDirection:"row",
+        gap:20
+    },
+    callButton:{
+        flexDirection:"row",
+        gap:10,
+        alignItems:"center"
     }
+    
 });
 export default OrderDetails
