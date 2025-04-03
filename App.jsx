@@ -15,6 +15,8 @@ import OrderDetails from './Components/OrderDetails';
 import { RefreshProvider } from './Components/TabRefresh';
 import Scanner from './Components/QrcodeScanner';
 import Header from './Components/CustomHeader';
+import ScannedResult from './Components/ScanResult';
+import VeriftOTP from './Components/VerifyOTp';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator()
 
@@ -106,9 +108,26 @@ function TabNavigation(){
                 
               }}
               />
+
+              <Stack.Screen
+              name="Verify OTP"
+              component={VeriftOTP}
+              options={{
+                header :() =>
+                  <Header title="Verify OTP"/>
+                
+              }}
+              />
               <Stack.Screen
               name="Scanner"
               component={Scanner}
+              options={{
+                headerShown: false,
+              }}
+              />
+              <Stack.Screen
+              name="Result"
+              component={ScannedResult}
               options={{
                 headerShown: false,
               }}

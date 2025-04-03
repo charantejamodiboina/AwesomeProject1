@@ -5,7 +5,7 @@ import Status from "./Status";
 export const AssignedTab = () => {
     return(
         <>
-        <Status shippingstatus={1} updateShipping={2} buttonLabel={"Accept"} ShowButton={true} ShowDirections={false} ShowODButton={false}/>
+        <Status shippingstatus={1} updateShipping={2} buttonLabel={"Accept"} ShowButton={false} ShowDirections={false} ShowODButton={false}/>
         </>
     )
 }
@@ -15,7 +15,7 @@ export const AssignedTab = () => {
 export const ReadyToPick = () => {
     return(
         <>
-        <Status shippingstatus={2} updateShipping={4} buttonLabel={"Out for Delivery"} ShowButton={true} ShowDirections={false} ShowODButton={false}/>
+        <Status shippingstatus={2} updateShipping={4} buttonLabel={"Out for Delivery"} ShowButton={false} ShowDirections={false} ShowODButton={false}/>
         </>
     )
 }

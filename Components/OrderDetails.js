@@ -1,23 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { Pressable, View, Text, StyleSheet, FlatList, ActivityIndicator } from "react-native";
 import { useAuth } from "./Auth";
-import {useNavigation}  from '@react-navigation/native';
+import {NavigationContainer, useFocusEffect, useNavigation}  from '@react-navigation/native';
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
 import FontAwesome6 from "react-native-vector-icons/FontAwesome6"
 import AntDesign from "react-native-vector-icons/AntDesign"
 import Ionicons from "react-native-vector-icons/Ionicons"
 import { useTheme } from "./Color";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 const OrderDetails = ({route}) => {
     const {order, address, adpincode, price, name} = route.params
     const {token} = useAuth()
     const [items, setItems] = useState([])
     const [error, setError] = useState(null)
     const [loading, setLoading] = useState(false)
+    const [scannedStatus, setScannedStatus]= useState('')
     const colors =useTheme()
     const navigation = useNavigation()
-    useEffect(()=>{
-        const fetchDetails = async() =>{
+    
+    const fetchDetails = async() =>{
             setLoading(true)
             try {
                 const res = await axios.get(`https://admin.shopersbay.com/asapi/getOrderDetail/${order}`,
@@ -39,8 +41,19 @@ const OrderDetails = ({route}) => {
             }
            
         }
-        fetchDetails()
-    }, [order, token])
+        
+    
+    const checkScannedStatus = async() => {
+        const status = await AsyncStorage.getItem(`scanned - ${order}`)
+        setScannedStatus(status)
+    }
+
+    useFocusEffect(
+        useCallback(()=>{
+            checkScannedStatus();
+            fetchDetails()
+        }, [order, token])
+    )
     return(
         <View style={styles.sectionContainer}>
             <View style={styles.itemContainer1}>
@@ -62,16 +75,20 @@ const OrderDetails = ({route}) => {
                     <View style={styles.buttonContainer}>
                         
                     <Text style={styles.titleText}> {item.orderid}</Text>
-                    <Pressable onPress= {()=>{navigation.navigate("Scanner", {order:order})}} style={[styles.scanButton, {backgroundColor : colors.Primary}]}><MaterialCommunityIcons name="barcode-scan" color="white" size={20}/>{/*<MaterialCommunityIcons name="qrcode-scan" color="white" size={20} />*/}<Text style={styles.scanText}> Scan</Text></Pressable>
-                    
+                    <Pressable onPress= {()=>{navigation.navigate("Scanner", {order:order})}} style={[styles.scanButton, {backgroundColor : colors.Primary}]}
+                        disabled = {scannedStatus === "Scanned Successfully"}>{scannedStatus !== "Scanned Successfully" ?<MaterialCommunityIcons name="barcode-scan" color="white" size={20}/> : null}<Text style={styles.scanText}> {scannedStatus === "Scanned Successfully" ? "Scanned" : "Scan"}</Text></Pressable>                    
                     </View>
                     <Text style={[styles.listText]}>{JSON.parse(item.product_details)?.product_title}</Text>
                     <Text  style={[styles.boldText, {color:colors.Primary}]}>Qty : {item.quantity}  | Price : {item.amount}</Text>   
-                </View>)}
-
-            
-        /> )
+                </View>)}            
+        /> 
+    
+    )
         : <Text>No orders</Text>}
+        {scannedStatus === "Scanned Successfully" && <View style={{alignItems:"center"}}>
+            <Pressable onPress={()=>navigation.navigate("Verify OTP")} style={[styles.confirmBtn, {backgroundColor:colors.Primary}]}><Text style ={[styles.confText, {color:colors.TextInPrimary}]}>Confirm</Text></Pressable>
+        </View>}
+        
         {loading && <ActivityIndicator size="large" color={colors.Primary} />}
         {error && <Text>{error}</Text>}
         </View>
@@ -83,7 +100,8 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 16,
         backgroundColor : "rgb(255, 255, 255)",
-        flexDirection : "column"
+        flexDirection : "column",
+        
     },
     errorText: {
         color: "red",
@@ -163,6 +181,17 @@ const styles = StyleSheet.create({
         flexDirection:"row",
         gap:10,
         alignItems:"center"
+    },
+    confirmBtn:{
+        width:"70%",
+        height:45,
+        alignItems : "center",
+        justifyContent : "center",
+        borderRadius : 50
+    },
+    confText:{
+        fontWeight:"bold",
+        fontSize : 16
     }
     
 });

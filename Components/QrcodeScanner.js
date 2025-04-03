@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useNavigation } from '@react-navigation/native';
+import Success from "react-native-vector-icons/Feather"
+import Error from "react-native-vector-icons/MaterialIcons"
 import {
   Camera,
   useCameraDevice,
@@ -9,27 +11,36 @@ import {
 import { useTheme } from "./Color";
 import axios from "axios";
 import { useAuth } from "./Auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const QRScanner = () => {
+const QRScanner = ({route}) => {
+    const {order} = route.params
     const navigation = useNavigation()
     const colors = useTheme()
     const [hasPermissions, setPermissions] = useState(false)
     const [refresh, setRefresh] = useState(false)
     const [value, setValue]= useState("")
     const [loading, setLoading] = useState(false)
+    const [isScanned, setIsScanned] = useState(true)
     const [error, setError]= useState(null)
     const {token} = useAuth()
 
-    const verifyOrderId = (orderid) =>{
+    const verifyOrderId = async(orderid) =>{
         try {
-            const res = axios.post(`https://admin.shopersbay.com/asapi/verifyOrderDetail`, { orderid:orderid },
+            const res = await axios.post(`https://admin.shopersbay.com/asapi/verifyOrderDetail`, { orderid:orderid },
                 {
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`,
                     },
                 })
-                console.log(res.data)
+                console.log(order)
+                if(order===orderid){
+                    setValue("Scanned Successfully")
+                    await AsyncStorage.setItem(`scanned - ${order}`, "Scanned Successfully")
+                }else{
+                    setValue("Not Recognized")
+                }
 
         } catch (error) {
             setError("something went Wrong")
@@ -40,19 +51,20 @@ const QRScanner = () => {
     const device = useCameraDevice("back")
     const scanner = useCodeScanner({
         codeTypes : [
-            "qr", 
+            "qr",
             "codabar",
-            "code128",
-            "code39", 
-            "ean13", 
-            "ean8", 
-            "upc_a", 
-            "upc_e"
+            "code-128",
+            "code-39",
+            "ean-13", 
+            "ean-8", 
+            "upc-a", 
+            "upc-e"
         ],
         onCodeScanned : async (codes)=>{
             console.log("codescanned :", codes )
             const orderid = codes[0].value
             await verifyOrderId(orderid)
+            setIsScanned(false)
         }
     })
     useEffect(()=>{
@@ -81,15 +93,33 @@ const QRScanner = () => {
         <View style={styles.container}>
             {loading && <ActivityIndicator color= {colors.Primary} size={"large"}/>}
             {error && <Text>{error}</Text>}
-            <Camera
+            {isScanned && <Camera
             codeScanner={scanner}
             style={styles.camera}
             device={device}
             isActive={true}
-            />
+            />}
+            { !isScanned &&
             <View style={styles.nestedContainer}>
-               <Text style={{color:colors.Primary}}> {value}</Text>
-            </View>
+                
+               
+               {value==="Scanned Successfully" ? 
+                <View style={styles.result}>
+                    <Success name="check-circle" size={100} color={colors.success}/>
+                    <Text style={[styles.resultText, {color:colors.success}]}> {value}</Text>
+                    <Pressable style={[styles.resultBtn, {borderColor : colors.success}]} onPress={async() =>{await AsyncStorage.setItem(`scanned - ${order}`, "Scanned Successfully")
+                    navigation.goBack()}}>
+                        <Text style={[styles.resultBtnText, {color:colors.success}]}>Ok</Text>
+                    </Pressable>
+                </View> : 
+                <View style={styles.result}>
+                    <Error name="error-outline" size={100} color={colors.error}/> 
+                    <Text style={[styles.resultText, {color:colors.error}]}>{value}</Text>
+                    <Pressable style={[styles.resultBtn, {borderColor :colors.error}]} onPress={()=>setIsScanned(true)}>
+                        <Text style={[styles.resultBtnText, {color:colors.error}]}>Scan Again</Text>
+                    </Pressable>
+                </View>}
+            </View>}
         </View>
     )
 }
@@ -97,30 +127,47 @@ const QRScanner = () => {
 const styles = StyleSheet.create({
     container :{
         flex:1,
-        position:"absolute",
-        top : 0,
-    height: "100%",
-    width: "100%",
+        position:"relative",
         alignItems: "center",
         justifyContent : "center"
     },
     nestedContainer:{
         backgroundcolor:"white",
-        position:"absolute",
-        bottom : 0,
-        left : 0,
-        right : 0,
-        height: "20%",
-    width: "80%",
     alignItems: "center",
     justifyContent: "center",
+    
     },
     camera:{
         width:"100%",
-        height : "70%",
-        position: "absolute",
-        top:0,
-        borderRadius : 20
+        height : "100%",
+        overflow:"hidden",
+        borderRadius : 10
+    },
+    resultText : {
+        fontSize:40,
+        alignItems: "baseline",
+        justifyContent : "center",
+        textAlign:"center",
+        margin:"auto"
+    },
+    result : {
+        alignItems: "center",
+        justifyContent : "center",
+        textAlign:"center",
+        margin:"auto",
+        gap:30
+    },
+    resultBtn:{
+        height:50,
+        width:100,
+        borderWidth : 2,
+        borderRadius : 10,
+        alignItems : "center",
+        justifyContent : "center"
+    },
+    resultBtnText:{
+        fontWeight : "bold"
     }
+
 })
 export default QRScanner;
