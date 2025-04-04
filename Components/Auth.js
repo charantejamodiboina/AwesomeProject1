@@ -14,6 +14,8 @@ const Login = (newToken) =>{
     setToken(newToken)
 }
 
+const GoogleMapsApiKey = "AIzaSyBEhoXegQdZgL1z5vZc4gD0I_Q4MLnnsII"
+
 const Logout = async() =>{
     await AsyncStorage.removeItem('token')
     await AsyncStorage.removeItem('IsLoggedIn')
@@ -21,6 +23,6 @@ const Logout = async() =>{
 }
 
 return(
-    <AuthContext.Provider value={{token, Login, Logout}}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{token, Login, Logout, GoogleMapsApiKey}}>{children}</AuthContext.Provider>
 )
 }

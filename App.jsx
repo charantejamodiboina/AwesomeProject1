@@ -17,6 +17,7 @@ import Scanner from './Components/QrcodeScanner';
 import Header from './Components/CustomHeader';
 import ScannedResult from './Components/ScanResult';
 import VeriftOTP from './Components/VerifyOTp';
+import ConfirmedPage from './Components/OrderConfirm';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator()
 
@@ -116,6 +117,13 @@ function TabNavigation(){
                 header :() =>
                   <Header title="Verify OTP"/>
                 
+              }}
+              />
+              <Stack.Screen
+              name="Order Confirmed"
+              component={ConfirmedPage}
+              options={{
+                headerShown: false,
               }}
               />
               <Stack.Screen

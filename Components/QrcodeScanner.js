@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useNavigation } from '@react-navigation/native';
 import Success from "react-native-vector-icons/Feather"
 import Error from "react-native-vector-icons/MaterialIcons"
@@ -17,6 +17,7 @@ const QRScanner = ({route}) => {
     const {order} = route.params
     const navigation = useNavigation()
     const colors = useTheme()
+    const [verification_id, setVerification_id] = useState("")
     const [hasPermissions, setPermissions] = useState(false)
     const [refresh, setRefresh] = useState(false)
     const [value, setValue]= useState("")
@@ -34,7 +35,9 @@ const QRScanner = ({route}) => {
                         "Authorization": `Bearer ${token}`,
                     },
                 })
-                console.log(order)
+                console.log(res.data.data.varification_id)
+                id = res.data.data.varification_id
+                setVerification_id(id)
                 if(order===orderid){
                     setValue("Scanned Successfully")
                     await AsyncStorage.setItem(`scanned - ${order}`, "Scanned Successfully")
@@ -65,6 +68,7 @@ const QRScanner = ({route}) => {
             const orderid = codes[0].value
             await verifyOrderId(orderid)
             setIsScanned(false)
+
         }
     })
     useEffect(()=>{
@@ -89,6 +93,7 @@ const QRScanner = ({route}) => {
         </View>
         )
     }
+    console.log(verification_id)
     return(
         <View style={styles.container}>
             {loading && <ActivityIndicator color= {colors.Primary} size={"large"}/>}

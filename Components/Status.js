@@ -15,7 +15,7 @@ import {
 import OrderDetails from "./OrderDetails";
 
 const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true, ShowDirections=true, ShowODButton=true}) => {
-    const { Logout, token } = useAuth();
+    const { Logout, token, GoogleMapsApiKey } = useAuth();
     const [items, setItems] = useState([]);
     const [error, setError] = useState(null);
     const [refreshData, setRefreshData] = useState(null)
@@ -78,7 +78,7 @@ const Status = ({shippingstatus, updateShipping, buttonLabel, ShowButton=true, S
             const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json`, {
                 params: {
                     address: addressString,
-                    key: "AIzaSyBEhoXegQdZgL1z5vZc4gD0I_Q4MLnnsII",
+                    key: GoogleMapsApiKey,
                 },
             });
             console.log(response.data)

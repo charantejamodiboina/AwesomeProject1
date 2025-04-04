@@ -3,6 +3,7 @@ import { View, StyleSheet, PermissionsAndroid, Text, Pressable, Alert, ActivityI
 import MapView, { PROVIDER_GOOGLE, Marker } from "react-native-maps";
 import Geolocation from '@react-native-community/geolocation';
 import { useTheme } from './Color';
+import { useAuth } from "./Auth";
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MapViewDirections from 'react-native-maps-directions';
 const ShowMap = ({ route }) => {
@@ -11,6 +12,7 @@ const ShowMap = ({ route }) => {
   const [hasLocationPermission, setHasLocationPermission] = useState(false);
   const [position, setPosition] = useState(null)
   const colors = useTheme()
+  const {GoogleMapsApiKey} = useAuth()
 
   useEffect(() => {
     const requestPermission = async () => {
@@ -90,7 +92,7 @@ const CurrentLocationCoordinates = position ? {
         {CurrentLocationCoordinates && <MapViewDirections
       origin={CurrentLocationCoordinates}
       destination={mapCoordinates}
-      apikey="AIzaSyBEhoXegQdZgL1z5vZc4gD0I_Q4MLnnsII"
+      apikey= {GoogleMapsApiKey}
       strokeWidth={5}
       strokeColor = {colors.Primary}
       /> }

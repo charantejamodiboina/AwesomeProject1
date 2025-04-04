@@ -10,7 +10,9 @@ import Ionicons from "react-native-vector-icons/Ionicons"
 import { useTheme } from "./Color";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 const OrderDetails = ({route}) => {
-    const {order, address, adpincode, price, name} = route.params
+    const {order, address, adpincode, price, name } = route.params
+    const {verification_id} = route.params
+    console.log(verification_id)
     const {token} = useAuth()
     const [items, setItems] = useState([])
     const [error, setError] = useState(null)
@@ -86,7 +88,7 @@ const OrderDetails = ({route}) => {
     )
         : <Text>No orders</Text>}
         {scannedStatus === "Scanned Successfully" && <View style={{alignItems:"center"}}>
-            <Pressable onPress={()=>navigation.navigate("Verify OTP")} style={[styles.confirmBtn, {backgroundColor:colors.Primary}]}><Text style ={[styles.confText, {color:colors.TextInPrimary}]}>Confirm</Text></Pressable>
+            <Pressable onPress={()=>navigation.navigate("Verify OTP", {order:order})} style={[styles.confirmBtn, {backgroundColor:colors.Primary}]}><Text style ={[styles.confText, {color:colors.TextInPrimary}]}>Confirm</Text></Pressable>
         </View>}
         
         {loading && <ActivityIndicator size="large" color={colors.Primary} />}
