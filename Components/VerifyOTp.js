@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import  Modal  from "react-native-modal";
 import { OtpInput } from "react-native-otp-entry";
 import { useTheme } from "./Color";
@@ -11,11 +11,13 @@ const VerifyOTP = ({route, }) =>{
     const [modalVisible, setModalVisible] = useState(false)
     const [otp, setOtp] = useState("")
     const [error, setError] = useState(null)
+    const [loading, setLoading] =  useState(false)
     const {token} =useAuth()
     const colors = useTheme()
     const navigation = useNavigation()
     const {order} = route.params
     const handleVerifyOTP = async() =>{
+        setLoading(true)
         try {
             const res = await axios.post(`https://admin.shopersbay.com/asapi/verifyDeiveryOtp`, 
                 { 
@@ -30,8 +32,6 @@ const VerifyOTP = ({route, }) =>{
                 })
                 console.log(res.data)
                 if(res.data.status === "success"){
-                    
-        
                         try {
                             const res = await axios.post(
                                 "https://admin.shopersbay.com/asapi/updateShippingStatus",
@@ -55,11 +55,14 @@ const VerifyOTP = ({route, }) =>{
                     }else{
                         setError("Incorrect OTP")
                     }
-                    
+                    setError(null)
+                    setLoading(false)
                 
         } catch (error) {
             setError("something went wrong")
-        } 
+        } finally {
+            setLoading(false)
+        }
 
     }
     return(
@@ -91,6 +94,7 @@ const VerifyOTP = ({route, }) =>{
                 />
                 <Pressable onPress={handleVerifyOTP} style={[styles.confirmBtn, {backgroundColor:colors.Primary}]}><Text style ={[styles.confText, {color:colors.TextInPrimary}]}>Confirm</Text></Pressable>
                 {error && <Text>{error}</Text>}
+                {loading && <ActivityIndicator size={"large"} color={colors.Primary}/> }
                 </View>
                 
             

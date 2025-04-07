@@ -89,7 +89,8 @@ function TabNavigation(){
               name ="Map"
               component={ShowMap}
               options={{
-                headerShown: false,
+                header :() =>
+                  <Header title="Map"/>
               }}
               />
               
